@@ -153,6 +153,9 @@ static QMap<class QString, QSharedPointer<ValueHandler>>
     // screenshot method. Intended for WMs without xdg-desktop-portal.
     OPTION("useX11LegacyScreenshot"      ,Bool               ( false         )),
 #endif
+    OPTION("extPgm"                      ,String             ( ""            )),
+    OPTION("useDefaultExtPgm"            ,Bool               ( false         )),
+    OPTION("extPgmTerminal"              ,Bool               ( false         )),
 };
 
 static QMap<QString, QSharedPointer<KeySequence>> recognizedShortcuts = {

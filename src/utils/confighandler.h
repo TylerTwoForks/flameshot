@@ -145,7 +145,7 @@ public:
     CONFIG_GETTER_SETTER(arrowStyle, setArrowStyle, int)
     CONFIG_GETTER_SETTER(insecurePixelate, setInsecurePixelate, bool)
     CONFIG_GETTER_SETTER(showSelectionGeometryHideTime,
-                         showSelectionGeometryHideTime,
+                         setShowSelectionGeometryHideTime,
                          int)
 #if defined(Q_OS_WIN)
     CONFIG_GETTER_SETTER(ignorePrntScrForcesSnipping,
@@ -160,6 +160,9 @@ public:
                          setUseX11LegacyScreenshot,
                          bool)
 #endif
+    CONFIG_GETTER_SETTER(useDefaultExtPgm, setUseDefaultExtPgm, bool)
+    CONFIG_GETTER_SETTER(extPgm, setExtPgm, QString)
+    CONFIG_GETTER_SETTER(extPgmTerminal, setExtPgmTerminal, bool)
 
     // SPECIAL CASES
     bool startupLaunch();

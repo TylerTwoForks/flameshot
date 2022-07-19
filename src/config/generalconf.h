@@ -118,6 +118,7 @@ private:
 #if defined(Q_OS_UNIX) && !defined(Q_OS_MACOS)
     void initUseX11LegacyScreenshot();
 #endif
+    void initExtPgm();
 
     void _updateComponents(bool allowEmptySavePath);
 
@@ -176,4 +177,6 @@ private:
 #if defined(Q_OS_UNIX) && !defined(Q_OS_MACOS)
     QCheckBox* m_useX11LegacyScreenshot;
 #endif
+    QCheckBox* m_useExtPgm;
+    QCheckBox* m_useExtPgmTerm;
 };
