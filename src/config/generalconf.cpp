@@ -116,7 +116,7 @@ void GeneralConf::_updateComponents(bool allowEmptySavePath)
     m_saveLastRegion->setChecked(config.saveLastRegion());
     m_reverseArrow->setChecked(config.reverseArrow());
     m_drawCircleCounterOutline->setChecked(config.drawCircleCounterOutline());
-    m_useExtPgm->setChecked(config.useDefaultExtPgm());
+    m_useExtPgm->setChecked(config.useDefaultExtPgmOnAlt());
     m_useExtPgmTerm->setChecked(config.extPgmTerminal());
     m_xywhTimeout->setValue(config.showSelectionGeometryHideTime());
     m_autoCloseIdleDaemon->setChecked(config.autoCloseIdleDaemon());
@@ -786,19 +786,24 @@ void GeneralConf::initSquareMagnifier()
 
 void GeneralConf::initExtPgm()
 {
-    m_useExtPgm =
-      new QCheckBox(tr("Use default program (set program via launcher)"), this);
+    m_useExtPgm = new QCheckBox(
+      tr("Use default program on Alt+Click (set program via launcher)"), this);
+    m_useExtPgm->setToolTip(tr(
+      "When checked, Alt+left click on the launch button will open the default "
+      "program, if set and a regular left click will allow you to select a "
+      "program. If not "
+      "checked, the operation is reversed."));
     m_useExtPgmTerm =
       new QCheckBox(tr("Default program run in terminal"), this);
     m_scrollAreaLayout->addWidget(m_useExtPgm);
     m_scrollAreaLayout->addWidget(m_useExtPgmTerm);
     connect(m_useExtPgm, &QCheckBox::clicked, [](bool checked) {
-        ConfigHandler().setUseDefaultExtPgm(checked);
+        ConfigHandler().setUseDefaultExtPgmOnAlt(checked);
     });
     connect(m_useExtPgmTerm, &QCheckBox::clicked, [](bool checked) {
         ConfigHandler().setExtPgmTerminal(checked);
     });
-    m_useExtPgm->setChecked(ConfigHandler().useDefaultExtPgm());
+    m_useExtPgm->setChecked(ConfigHandler().useDefaultExtPgmOnAlt());
     m_useExtPgmTerm->setChecked(ConfigHandler().extPgmTerminal());
 }
 
@@ -928,8 +933,8 @@ void GeneralConf::setJpegQuality(int v)
 
 void GeneralConf::setGeometryLocation(int index)
 {
-    ConfigHandler().setValue("showSelectionGeometry",
-                             m_selectGeometryLocation->itemData(index));
+    ConfigHandler().setShowSelectionGeometry(
+      m_selectGeometryLocation->itemData(index).toInt());
 }
 
 void GeneralConf::togglePathFixed()

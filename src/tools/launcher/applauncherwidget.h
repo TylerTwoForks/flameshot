@@ -26,7 +26,9 @@ class AppLauncherWidget : public QWidget
 {
     Q_OBJECT
 public:
-    explicit AppLauncherWidget(const QPixmap& p, QWidget* parent = nullptr);
+    explicit AppLauncherWidget(const QPixmap& p,
+                               bool alt = false,
+                               QWidget* parent = nullptr);
 
 private slots:
     void launch(const QModelIndex& index);
