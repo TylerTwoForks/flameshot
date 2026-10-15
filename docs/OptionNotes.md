@@ -1,7 +1,7 @@
 Notes on adding new options to Flameshot
 ========================================
 
-Let's add extPgmTerminal as a boolena:
+Let's add extPgmTerminal as a boolean:
 
 1. Create the getter/setter in configHandler:
 
