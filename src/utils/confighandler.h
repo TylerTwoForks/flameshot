@@ -160,7 +160,6 @@ public:
                          setUseX11LegacyScreenshot,
                          bool)
 #endif
-    CONFIG_GETTER_SETTER(useDefaultExtPgmOnAlt, setUseDefaultExtPgmOnAlt, bool)
     CONFIG_GETTER_SETTER(extPgm, setExtPgm, QString)
     CONFIG_GETTER_SETTER(extPgmTerminal, setExtPgmTerminal, bool)
 

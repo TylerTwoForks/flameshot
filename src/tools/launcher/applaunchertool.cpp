@@ -3,6 +3,9 @@
 
 #include "applaunchertool.h"
 #include "tools/launcher/applauncherwidget.h"
+#include "utils/confighandler.h"
+
+#include <QGuiApplication>
 
 AppLauncher::AppLauncher(QObject* parent)
   : AbstractActionTool(parent)
@@ -30,17 +33,16 @@ CaptureTool::Type AppLauncher::type() const
 
 QString AppLauncher::description() const
 {
-    return tr("Choose an app to open the capture");
+    if (ConfigHandler().extPgm().isEmpty()) {
+        return tr("Choose an app to open the capture");
+    }
+    return tr("Open the capture with the default app (Shift+click to choose "
+              "another app)");
 }
 
 QWidget* AppLauncher::widget()
 {
     return new AppLauncherWidget(capture);
-}
-
-QWidget* AppLauncher::widget(bool alt)
-{
-    return new AppLauncherWidget(capture, alt);
 }
 
 CaptureTool* AppLauncher::copy(QObject* parent)
@@ -52,9 +54,19 @@ void AppLauncher::pressed(CaptureContext& context)
 {
     capture = context.selectedScreenshotArea();
     emit requestAction(REQ_CAPTURE_DONE_OK);
-    if (context.mouseModifiers & Qt::AltModifier) {
-        emit requestAction(REQ_ADD_EXTERNAL_WIDGETS_ALT);
-    } else
+
+    const QString defaultApp = ConfigHandler().extPgm();
+    const bool showChooser = QGuiApplication::keyboardModifiers().testAnyFlags(
+      Qt::ShiftModifier | Qt::AltModifier);
+    if (defaultApp.isEmpty() || showChooser) {
         emit requestAction(REQ_ADD_EXTERNAL_WIDGETS);
+    } else {
+        const QString path =
+          AppLauncherWidget::saveToTempFile(capture, nullptr);
+        if (!path.isEmpty()) {
+            AppLauncherWidget::launchApp(
+              defaultApp, ConfigHandler().extPgmTerminal(), path, nullptr);
+        }
+    }
     emit requestAction(REQ_CLOSE_GUI);
 }

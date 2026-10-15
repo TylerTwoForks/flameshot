@@ -670,8 +670,8 @@ void CaptureWidget::paintEvent(QPaintEvent* paintEvent)
        if we need to do it here. What that means is that if you add
        anything to the paintEvent and want to save/restore you should
        add a test to the below if statement -- also if you change
-       any of the conditions that current trigger it you'll need to change
-       here, too
+       any of the conditions that current trigger it you'll need to change here,
+       too
     */
     bool save = false;
     if (m_xywhDisplay ||                           // clause 1: xywh display
@@ -1414,7 +1414,6 @@ void CaptureWidget::setState(CaptureToolButton* b)
         // The tool is active during the pressed().
         // This must be done in order to handle tool requests correctly.
         m_activeTool = b->tool();
-        m_context.mouseModifiers = b->mouseModifier;
         m_activeTool->pressed(m_context);
         m_activeTool = backup;
     }
@@ -1486,16 +1485,10 @@ void CaptureWidget::handleToolSignal(CaptureTool::Request r)
             }
             break;
         case CaptureTool::REQ_ADD_EXTERNAL_WIDGETS:
-        case CaptureTool::REQ_ADD_EXTERNAL_WIDGETS_ALT:
             if (!m_activeTool) {
                 break;
             } else {
-                QWidget* w;
-                if (r == CaptureTool::REQ_ADD_EXTERNAL_WIDGETS_ALT)
-                    w = m_activeTool->widget();
-                else
-                    w = m_activeTool->widget(true);
-
+                QWidget* w = m_activeTool->widget();
                 w->setAttribute(Qt::WA_DeleteOnClose);
                 w->activateWindow();
                 w->show();

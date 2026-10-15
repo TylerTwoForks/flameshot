@@ -13,7 +13,7 @@
 #endif
 
 #include <QMap>
-#include <QTemporaryFile>
+#include <QPixmap>
 #include <QWidget>
 
 class QTabWidget;
@@ -26,14 +26,32 @@ class AppLauncherWidget : public QWidget
 {
     Q_OBJECT
 public:
+    // Launch opens the capture with the selected app. Pick only reports the
+    // selected app through appPicked() and is used to choose a default app.
+    enum class Mode
+    {
+        Launch,
+        Pick
+    };
+
     explicit AppLauncherWidget(const QPixmap& p,
-                               bool alt = false,
+                               Mode mode = Mode::Launch,
                                QWidget* parent = nullptr);
+
+    // Returns the path of the saved file, or an empty string on failure.
+    static QString saveToTempFile(const QPixmap& pixmap, QWidget* parent);
+    static void launchApp(const QString& command,
+                          bool inTerminal,
+                          const QString& tempFilePath,
+                          QWidget* parent);
+
+signals:
+    void appPicked(const QString& command, bool inTerminal);
 
 private slots:
     void launch(const QModelIndex& index);
-    void launchCmd(QString& command, bool inTerminal);
     void checkboxClicked(const bool enabled);
+    void setAsDefaultClicked(const bool enabled);
     void searchChanged(const QString& text);
 
 private:
@@ -50,7 +68,8 @@ private:
     DesktopFileParser m_parser;
 #endif
     QPixmap m_pixmap;
-    QTemporaryFile* m_tempFile = nullptr;
+    Mode m_mode;
+    QString m_tempFilePath;
     bool m_keepOpen;
     QMap<QString, QVector<DesktopAppData>> m_appsMap;
     QCheckBox* m_setAsDefaultCheckbox;

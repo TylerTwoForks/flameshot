@@ -53,6 +53,7 @@ private slots:
     void exportFileConfiguration();
     void resetConfiguration();
     void togglePathFixed();
+    void chooseExtPgm();
     void uploadClientKeyEdited();
     void useJpgForClipboardChanged(bool checked);
     void setSaveAsFileExtension(const QString& extension);
@@ -176,6 +177,6 @@ private:
 #if defined(Q_OS_UNIX) && !defined(Q_OS_MACOS)
     QCheckBox* m_useX11LegacyScreenshot;
 #endif
-    QCheckBox* m_useExtPgm;
+    QLineEdit* m_extPgm;
     QCheckBox* m_useExtPgmTerm;
 };

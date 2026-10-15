@@ -2,6 +2,7 @@
 // SPDX-FileCopyrightText: 2017-2019 Alejandro Sirgo Rica & Contributors
 
 #include "generalconf.h"
+#include "tools/launcher/applauncherwidget.h"
 #include "utils/confighandler.h"
 
 #include <QCheckBox>
@@ -116,7 +117,7 @@ void GeneralConf::_updateComponents(bool allowEmptySavePath)
     m_saveLastRegion->setChecked(config.saveLastRegion());
     m_reverseArrow->setChecked(config.reverseArrow());
     m_drawCircleCounterOutline->setChecked(config.drawCircleCounterOutline());
-    m_useExtPgm->setChecked(config.useDefaultExtPgmOnAlt());
+    m_extPgm->setText(config.extPgm());
     m_useExtPgmTerm->setChecked(config.extPgmTerminal());
     m_xywhTimeout->setValue(config.showSelectionGeometryHideTime());
     m_autoCloseIdleDaemon->setChecked(config.autoCloseIdleDaemon());
@@ -786,25 +787,63 @@ void GeneralConf::initSquareMagnifier()
 
 void GeneralConf::initExtPgm()
 {
-    m_useExtPgm = new QCheckBox(
-      tr("Use default program on Alt+Click (set program via launcher)"), this);
-    m_useExtPgm->setToolTip(tr(
-      "When checked, Alt+left click on the launch button will open the default "
-      "program, if set and a regular left click will allow you to select a "
-      "program. If not "
-      "checked, the operation is reversed."));
-    m_useExtPgmTerm =
-      new QCheckBox(tr("Default program run in terminal"), this);
-    m_scrollAreaLayout->addWidget(m_useExtPgm);
-    m_scrollAreaLayout->addWidget(m_useExtPgmTerm);
-    connect(m_useExtPgm, &QCheckBox::clicked, [](bool checked) {
-        ConfigHandler().setUseDefaultExtPgmOnAlt(checked);
+    auto* box = new QGroupBox(tr("Default Open With Application"));
+    box->setFlat(true);
+    m_layout->addWidget(box);
+
+    auto* vboxLayout = new QVBoxLayout();
+    box->setLayout(vboxLayout);
+
+    auto* appLayout = new QHBoxLayout();
+
+    m_extPgm = new QLineEdit(ConfigHandler().extPgm(), this);
+    m_extPgm->setDisabled(true);
+    m_extPgm->setPlaceholderText(tr("None (always ask)"));
+    m_extPgm->setToolTip(
+      tr("When set, the Open With button launches this application directly. "
+         "Hold Shift or Alt while clicking to choose another application."));
+    QString foreground = this->palette().windowText().color().name();
+    m_extPgm->setStyleSheet(QStringLiteral("color: %1").arg(foreground));
+    appLayout->addWidget(m_extPgm);
+
+    auto* chooseButton = new QPushButton(tr("Choose..."), this);
+    appLayout->addWidget(chooseButton);
+    connect(
+      chooseButton, &QPushButton::clicked, this, &GeneralConf::chooseExtPgm);
+
+    auto* clearButton = new QPushButton(tr("Clear"), this);
+    appLayout->addWidget(clearButton);
+    connect(clearButton, &QPushButton::clicked, this, [this]() {
+        ConfigHandler().setExtPgm(QString());
+        m_extPgm->clear();
     });
-    connect(m_useExtPgmTerm, &QCheckBox::clicked, [](bool checked) {
+
+    m_useExtPgmTerm =
+      new QCheckBox(tr("Run default application in terminal"), this);
+    m_useExtPgmTerm->setChecked(ConfigHandler().extPgmTerminal());
+    connect(m_useExtPgmTerm, &QCheckBox::clicked, this, [](bool checked) {
         ConfigHandler().setExtPgmTerminal(checked);
     });
-    m_useExtPgm->setChecked(ConfigHandler().useDefaultExtPgmOnAlt());
-    m_useExtPgmTerm->setChecked(ConfigHandler().extPgmTerminal());
+
+    vboxLayout->addLayout(appLayout);
+    vboxLayout->addWidget(m_useExtPgmTerm);
+}
+
+void GeneralConf::chooseExtPgm()
+{
+    auto* picker =
+      new AppLauncherWidget(QPixmap(), AppLauncherWidget::Mode::Pick);
+    picker->setWindowModality(Qt::ApplicationModal);
+    connect(picker,
+            &AppLauncherWidget::appPicked,
+            this,
+            [this](const QString& command, bool inTerminal) {
+                ConfigHandler().setExtPgm(command);
+                ConfigHandler().setExtPgmTerminal(inTerminal);
+                m_extPgm->setText(command);
+                m_useExtPgmTerm->setChecked(inTerminal);
+            });
+    picker->show();
 }
 
 void GeneralConf::initShowSelectionGeometry()

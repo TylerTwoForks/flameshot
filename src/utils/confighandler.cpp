@@ -154,7 +154,6 @@ static QMap<class QString, QSharedPointer<ValueHandler>>
     OPTION("useX11LegacyScreenshot"      ,Bool               ( false         )),
 #endif
     OPTION("extPgm"                      ,String             ( ""            )),
-    OPTION("useDefaultExtPgmOnAlt"       ,Bool               ( true          )),
     OPTION("extPgmTerminal"              ,Bool               ( false         )),
 };
 
