@@ -130,17 +130,17 @@ AppLauncherWidget::AppLauncherWidget(const QPixmap& p,
 
 void AppLauncherWidget::launch(const QModelIndex& index)
 {
+    QString name = index.data(Qt::DisplayRole).toString();
     QString command = index.data(Qt::UserRole).toString();
     bool inTerminal =
       index.data(Qt::UserRole + 1).toBool() || m_terminalCheckbox->isChecked();
     if (m_mode == Mode::Pick) {
-        emit appPicked(command, inTerminal);
+        emit appPicked(name, command, inTerminal);
         close();
         return;
     }
     if (m_setAsDefaultCheckbox->isChecked()) {
-        ConfigHandler().setExtPgm(command);
-        ConfigHandler().setExtPgmTerminal(inTerminal);
+        setDefaultApp(name, command, inTerminal);
     }
     if (m_tempFilePath.isEmpty() || !QFileInfo(m_tempFilePath).isReadable()) {
         m_tempFilePath = saveToTempFile(m_pixmap, this);
@@ -227,9 +227,36 @@ void AppLauncherWidget::checkboxClicked(const bool enabled)
 void AppLauncherWidget::setAsDefaultClicked(const bool enabled)
 {
     if (!enabled) {
-        ConfigHandler().setExtPgm(QString());
-        ConfigHandler().setExtPgmTerminal(false);
+        setDefaultApp(QString(), QString(), false);
     }
+}
+
+void AppLauncherWidget::setDefaultApp(const QString& name,
+                                      const QString& command,
+                                      bool inTerminal)
+{
+    ConfigHandler config;
+    config.setExtPgm(command);
+    config.setExtPgmName(name);
+    config.setExtPgmTerminal(inTerminal);
+}
+
+QString AppLauncherWidget::defaultAppName()
+{
+    ConfigHandler config;
+    QString name = config.extPgmName();
+    if (name.isEmpty()) {
+#if defined(Q_OS_WIN)
+        // Windows commands are .lnk paths that may contain spaces
+        name = QFileInfo(config.extPgm()).completeBaseName();
+#else
+        const QStringList args = QProcess::splitCommand(config.extPgm());
+        if (!args.isEmpty()) {
+            name = QFileInfo(args.first()).fileName();
+        }
+#endif
+    }
+    return name;
 }
 
 void AppLauncherWidget::searchChanged(const QString& text)

@@ -45,8 +45,17 @@ public:
                           const QString& tempFilePath,
                           QWidget* parent);
 
+    // Pass an empty command to clear the default app.
+    static void setDefaultApp(const QString& name,
+                              const QString& command,
+                              bool inTerminal);
+    // Falls back to the program name for configs saved without a name.
+    static QString defaultAppName();
+
 signals:
-    void appPicked(const QString& command, bool inTerminal);
+    void appPicked(const QString& name,
+                   const QString& command,
+                   bool inTerminal);
 
 private slots:
     void launch(const QModelIndex& index);

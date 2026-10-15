@@ -117,7 +117,7 @@ void GeneralConf::_updateComponents(bool allowEmptySavePath)
     m_saveLastRegion->setChecked(config.saveLastRegion());
     m_reverseArrow->setChecked(config.reverseArrow());
     m_drawCircleCounterOutline->setChecked(config.drawCircleCounterOutline());
-    m_extPgm->setText(config.extPgm());
+    updateExtPgmDisplay();
     m_useExtPgmTerm->setChecked(config.extPgmTerminal());
     m_xywhTimeout->setValue(config.showSelectionGeometryHideTime());
     m_autoCloseIdleDaemon->setChecked(config.autoCloseIdleDaemon());
@@ -796,15 +796,13 @@ void GeneralConf::initExtPgm()
 
     auto* appLayout = new QHBoxLayout();
 
-    m_extPgm = new QLineEdit(ConfigHandler().extPgm(), this);
+    m_extPgm = new QLineEdit(this);
     m_extPgm->setDisabled(true);
     m_extPgm->setPlaceholderText(tr("None (always ask)"));
-    m_extPgm->setToolTip(
-      tr("When set, the Open With button launches this application directly. "
-         "Hold Shift or Alt while clicking to choose another application."));
     QString foreground = this->palette().windowText().color().name();
     m_extPgm->setStyleSheet(QStringLiteral("color: %1").arg(foreground));
     appLayout->addWidget(m_extPgm);
+    updateExtPgmDisplay();
 
     auto* chooseButton = new QPushButton(tr("Choose..."), this);
     appLayout->addWidget(chooseButton);
@@ -814,8 +812,9 @@ void GeneralConf::initExtPgm()
     auto* clearButton = new QPushButton(tr("Clear"), this);
     appLayout->addWidget(clearButton);
     connect(clearButton, &QPushButton::clicked, this, [this]() {
-        ConfigHandler().setExtPgm(QString());
-        m_extPgm->clear();
+        AppLauncherWidget::setDefaultApp(QString(), QString(), false);
+        updateExtPgmDisplay();
+        m_useExtPgmTerm->setChecked(false);
     });
 
     m_useExtPgmTerm =
@@ -832,18 +831,33 @@ void GeneralConf::initExtPgm()
 void GeneralConf::chooseExtPgm()
 {
     auto* picker =
-      new AppLauncherWidget(QPixmap(), AppLauncherWidget::Mode::Pick);
-    picker->setWindowModality(Qt::ApplicationModal);
-    connect(picker,
-            &AppLauncherWidget::appPicked,
-            this,
-            [this](const QString& command, bool inTerminal) {
-                ConfigHandler().setExtPgm(command);
-                ConfigHandler().setExtPgmTerminal(inTerminal);
-                m_extPgm->setText(command);
-                m_useExtPgmTerm->setChecked(inTerminal);
-            });
+      new AppLauncherWidget(QPixmap(), AppLauncherWidget::Mode::Pick, this);
+    picker->setWindowFlag(Qt::Window);
+    picker->setWindowModality(Qt::WindowModal);
+    connect(
+      picker,
+      &AppLauncherWidget::appPicked,
+      this,
+      [this](const QString& name, const QString& command, bool inTerminal) {
+          AppLauncherWidget::setDefaultApp(name, command, inTerminal);
+          updateExtPgmDisplay();
+          m_useExtPgmTerm->setChecked(inTerminal);
+      });
+    picker->adjustSize();
+    picker->move(window()->geometry().center() - picker->rect().center());
     picker->show();
+}
+
+void GeneralConf::updateExtPgmDisplay()
+{
+    const QString hint =
+      tr("When set, the Open With button launches this application directly. "
+         "Hold Shift or Alt while clicking to choose another application.");
+    const QString command = ConfigHandler().extPgm();
+    m_extPgm->setText(AppLauncherWidget::defaultAppName());
+    m_extPgm->setToolTip(command.isEmpty()
+                           ? hint
+                           : tr("Command: %1").arg(command) + "\n\n" + hint);
 }
 
 void GeneralConf::initShowSelectionGeometry()

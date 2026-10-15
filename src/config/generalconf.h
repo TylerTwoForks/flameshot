@@ -120,6 +120,7 @@ private:
     void initUseX11LegacyScreenshot();
 #endif
     void initExtPgm();
+    void updateExtPgmDisplay();
 
     void _updateComponents(bool allowEmptySavePath);
 

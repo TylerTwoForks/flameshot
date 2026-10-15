@@ -161,6 +161,7 @@ public:
                          bool)
 #endif
     CONFIG_GETTER_SETTER(extPgm, setExtPgm, QString)
+    CONFIG_GETTER_SETTER(extPgmName, setExtPgmName, QString)
     CONFIG_GETTER_SETTER(extPgmTerminal, setExtPgmTerminal, bool)
 
     // SPECIAL CASES

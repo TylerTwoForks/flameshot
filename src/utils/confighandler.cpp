@@ -154,6 +154,7 @@ static QMap<class QString, QSharedPointer<ValueHandler>>
     OPTION("useX11LegacyScreenshot"      ,Bool               ( false         )),
 #endif
     OPTION("extPgm"                      ,String             ( ""            )),
+    OPTION("extPgmName"                  ,String             ( ""            )),
     OPTION("extPgmTerminal"              ,Bool               ( false         )),
 };
 

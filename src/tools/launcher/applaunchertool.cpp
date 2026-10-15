@@ -36,8 +36,8 @@ QString AppLauncher::description() const
     if (ConfigHandler().extPgm().isEmpty()) {
         return tr("Choose an app to open the capture");
     }
-    return tr("Open the capture with the default app (Shift+click to choose "
-              "another app)");
+    return tr("Open the capture with %1 (Shift+click to choose another app)")
+      .arg(AppLauncherWidget::defaultAppName());
 }
 
 QWidget* AppLauncher::widget()
